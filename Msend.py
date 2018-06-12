@@ -1,6 +1,13 @@
 import socket
 import sys
 import random
+#for Machine
+from cpppo.server.enip import client
+
+host = "152.1.58.247" # Or, simply use an IP address, eg: 192.168.1.2
+tags = [ "s[0]","Program:MainProgram.C1.ACC" ]
+timeout = 1.0
+
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,12 +27,29 @@ while True:
    #rand = random.randint(1,100)
    #msg = str(rand)
    #clientsocket.send(msg.encode('ascii'))
-   list = (str(random.randint(250,260)),str(random.randint(150,170)),str(random.randint(280,300)))
-   s = "-"
-   code = s.join(list)
-   p =" "
-   join = ("Data:",code)
-   stream = p.join(join)
+   #machine data
+   try:
+       with client.connector( host=host, timeout=timeout) as conn:
+           for index,descr,op,reply,status,value in conn.pipeline(
+                   operations=client.parse_operations( tags ), depth=1 ):
+               if (index == 0):
+                   A = value[0] #machine ID
+               if (index == 1):
+                   B = value[0] #machine Count
+   except OSError as err:
+       A = "8"
+   except ValueError:
+       print("Could not convert data to an integer.")
+   except:
+       print("Unexpected error:", sys.exc_info()[0])
+       raise
+
+   if(A == "X"):
+       stream =""
+       print(stream)
+   if(A == 1882604571):
+       stream = "5"
+       print(stream)
 
    clientsocket.send(stream.encode())
    clientsocket.close()
